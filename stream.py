@@ -1,8 +1,13 @@
 import config
 import websocket, json
 from queue import Queue
+import datetime
 
 database = Queue()
+
+stocks = ['TSLA', 'PLUG']
+for i in range(len(stocks)):
+    stocks[i] = f'AM.{stocks[i]}'
 
 def on_open(ws):
     print("stream opened")
@@ -17,12 +22,18 @@ def on_open(ws):
 
     ws.send(json.dumps(listen_message))
 
-
 def on_message(ws, message):
 
     data = json.loads(message)['data']
-    database.put(data['c'])
+
+    ms = data['e']
+    date = datetime.datetime.fromtimestamp(ms/1000.0)
+    date = date.strftime('%Y-%m-%d %H:%M:%S')
+
+    database.put([data['c']])
+
     print(database)
+    print(date)
 
 def on_close(ws):
     print("closed connection")

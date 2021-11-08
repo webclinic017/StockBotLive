@@ -2,6 +2,7 @@ from queue import Queue
 from threading import Thread
 from stream import *
 from time import *
+from datetime import *
 
 q = database
 
@@ -18,6 +19,7 @@ def bot(in_q):
         # Get some data
         data = in_q.get()
         # Process the data
+        print("bot ping")
         sleep(30)
 
 
