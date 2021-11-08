@@ -7,7 +7,7 @@ database = Queue()
 
 stocks = ['TSLA', 'PLUG']
 for i in range(len(stocks)):
-    stocks[i] = f'AM.{stocks[i]}'
+    am_stocks = f'AM.{stocks[i]}'
 
 def on_open(ws):
     print("stream opened")
@@ -18,7 +18,7 @@ def on_open(ws):
 
     ws.send(json.dumps(auth_data))
 
-    listen_message = {"action": "listen", "data": {"streams": ["AM.TSLA"]}}
+    listen_message = {"action": "listen", "data": {"streams": am_stocks}}
 
     ws.send(json.dumps(listen_message))
 
