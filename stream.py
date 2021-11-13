@@ -5,9 +5,10 @@ import datetime
 
 database = Queue()
 
-stocks = ['TSLA', 'PLUG']
+stocks = ["TSLA", "PLUG"]
+am_stocks = []
 for i in range(len(stocks)):
-    am_stocks = f'AM.{stocks[i]}'
+    am_stocks.append(f"AM.{stocks[i]}")
 
 def on_open(ws):
     print("stream opened")
@@ -25,15 +26,14 @@ def on_open(ws):
 def on_message(ws, message):
 
     data = json.loads(message)['data']
-
     ms = data['e']
     date = datetime.datetime.fromtimestamp(ms/1000.0)
     date = date.strftime('%Y-%m-%d %H:%M:%S')
 
-    database.put([data['c']])
 
-    print(database)
-    print(date)
+    database.put([data['T'], date, data['o'], data['h'], data['l'], data['c'], data['v']])
+
+    print(f"Stock : {data['T']}, {date}")
 
 def on_close(ws):
     print("closed connection")

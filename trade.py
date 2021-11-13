@@ -33,4 +33,4 @@ def get_orders():
 
     return json.loads(r.content)
 
-create_order("PLUG", 10, "sell", "market", "gtc")
+create_order("PLUG", 990, "sell", "market", "gtc")

@@ -79,11 +79,9 @@ def getState(data, sell_option, t, TIME_RANGE, PRICE_RANGE):
     return [blank_matrix]
 
 
-def getStockDataLive(key, live_data):
-    histoical_data = pdr.get_data_tiingo(key, start='8-14-2020', api_key='9d4f4dacda5024f00eb8056b19009f32e58b38e5')
-
+def getStockDataLive(key, historical_data, live_data):
     if len(live_data) < 200:
-        stock_data = histoical_data[-(200 - len(live_data)):] + live_data
+        stock_data = historical_data[-(200 - len(live_data)):] + live_data
     else:
         stock_data = live_data
 
@@ -112,6 +110,7 @@ def getStockDataLive(key, live_data):
     return_data = [closing_values, macd, macds]
 
     return return_data
+
 
 
 # prints formatted price
