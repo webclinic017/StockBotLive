@@ -24,6 +24,7 @@ import tensorflow as tf
 import math
 
 TIME_RANGE, PRICE_RANGE = 40, 40
+MAX_DATA_LENGTH = 200
 
 
 def scale_list(l, to_min, to_max):
@@ -36,8 +37,9 @@ def scale_list(l, to_min, to_max):
         return [scale_number(i, to_min, to_max, min(l), max(l)) for i in l]
 
 
-def getState(data, sell_option, t, TIME_RANGE, PRICE_RANGE):
+def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     closing_values = data[0]
+    t = len(closing_values) #Finale value, repersenting live value
     macd = data[1]
     macds = data[2]
     # print(closing_values)
@@ -78,10 +80,16 @@ def getState(data, sell_option, t, TIME_RANGE, PRICE_RANGE):
 
     return [blank_matrix]
 
+def getHistoricalData(key, length_data):
+
+
+
+    return 0
+
 
 def getStockDataLive(key, historical_data, live_data):
-    if len(live_data) < 200:
-        stock_data = historical_data[-(200 - len(live_data)):] + live_data
+    if len(live_data) < MAX_DATA_LENGTH:
+        stock_data = historical_data[-(MAX_DATA_LENGTH - len(live_data)):] + live_data
     else:
         stock_data = live_data
 
