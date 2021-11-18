@@ -2,13 +2,9 @@ import config
 import websocket, json
 from queue import Queue
 import datetime
+from variables import *
 
-database = Queue()
 
-stocks = ["TSLA", "PLUG"]
-am_stocks = []
-for i in range(len(stocks)):
-    am_stocks.append(f"AM.{stocks[i]}")
 
 def on_open(ws):
     print("stream opened")
@@ -24,7 +20,6 @@ def on_open(ws):
     ws.send(json.dumps(listen_message))
 
 def on_message(ws, message):
-
     data = json.loads(message)['data']
     ms = data['e']
     date = datetime.datetime.fromtimestamp(ms/1000.0)

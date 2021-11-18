@@ -1,19 +1,20 @@
-from queue import Queue
 from threading import Thread
 from stream import *
 from time import *
 from handling_live import *
 from datetime import *
 import numpy as np
+import pandas as pd
+import trade
+from variables import *
 
-q = database
+model_name = 'model_1'
+agent = Agent(stocks=stocks, TIME_RANGE=TIME_RANGE, PRICE_RANGE=PRICE_RANGE, is_eval=True, model_name=model_name)
 
-datacenter = dict()
-
+data = {'close': [], 'high': [], 'low': [], 'open': [], 'volume': []}
 for s in stocks:
-    datacenter.update({s : []})
+    datacenter.update({s: pd.DataFrame(data)})
 
-print(datacenter)
 
 # A thread that produces data
 def stream(out_q):
@@ -24,55 +25,50 @@ def stream(out_q):
 # A thread that consumes data
 def bot(in_q):
     print("bot thread connected")
+
     while True:
-
-        if not in_q.empty():
             try:
+                if not in_q.empty():
+                    while not in_q.empty():
+                        data = in_q.get()
+                        print(data)
+                        stock_name = data[0]
 
-                while not in_q.empty():
-                    data = in_q.get()
-                    stock_name = data[0]
-                    stock_data_live_length = datacenter[stock_name]
-                    input_data = [data[2], data[3], data[4], data[5], data[6]]
-                    datacenter[stock_name].append(input_data)
+                        input_data = {'close': data[2], 'high': data[3], 'low': data[4], 'open': data[5],
+                                      'volume': data[6]}
+                        datacenter[stock_name] = datacenter[stock_name].append(input_data, ignore_index=True)
+                        stock_data_live_length = len(datacenter[stock_name]['close'])
 
-                    if len(stock_data_live_length) > MAX_DATA_LENGTH:
-                        datacenter[stock_name] = datacenter[stock_name][-MAX_DATA_LENGTH:]
+                        if stock_data_live_length > MAX_DATA_LENGTH:
+                            datacenter[stock_name] = datacenter[stock_name][-MAX_DATA_LENGTH:]
 
-                    historical_data = getHistoricalData(stock_name, MAX_DATA_LENGTH - stock_data_live_length)
+                        # historical_data = getHistoricalData(stock_name, MAX_DATA_LENGTH - stock_data_live_length)
 
-                    live_data = np.array(datacenter[stock_name])
-                    print(historical_data.shape)
-                    print(live_data.shape)
+                        live_data = datacenter[stock_name]
+                        if stock_data_live_length >= MAX_DATA_LENGTH:
+                            processed_live_data = getStockDataLive(stock_name, [], live_data)
+                            live_state = getStateLive(data=processed_live_data,
+                                                      sell_option=1,
+                                                      TIME_RANGE=TIME_RANGE,
+                                                      PRICE_RANGE=PRICE_RANGE)
 
+                            action = agent.act(live_state)
 
-
-
-
-
-                '''
-                make sure to iterate through the whole queue until it is empty
-                
-                get name tag on the data and set a key value to it (used for the dict)
-                access the datacenter dict and appened new data in proper format (c, o, h, l, v)
-                to the datacenter
-                
-                pass data after updating to handling_live methods
-                this will convert data into sizable image chunk which will be fed
-                into the model
-                
-                after the model yeilds an action the proper action will be taken and 
-                the alpaca will udpate on that stock promptly 
-                '''
+                            trade.bot_order(action=action,
+                                            stock=stocks,
+                                            close=datacenter[stock_name]['close'].values[-1],
+                                            inventory=agent.inventory[stock_name],
+                                            equity=agent.equity[stock_name])
             except:
                 print('failed to run')
+            sleep(1)
 
-        # Process the data
-        sleep(60)
-
-
-
-t1 = Thread(target=stream, args=(q,))
-t2 = Thread(target=bot, args=(q,))
+t1 = Thread(target=stream, args=(database,))
+t2 = Thread(target=bot, args=(database,))
 t1.start()
 t2.start()
+
+
+for i in range(200):
+    database.put(['TSLA', 1, 2, 3, 4, 5, 6])
+

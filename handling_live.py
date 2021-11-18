@@ -22,9 +22,8 @@ from keras.applications.xception import Xception
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import math
+from variables import *
 
-TIME_RANGE, PRICE_RANGE = 40, 40
-MAX_DATA_LENGTH = 200
 
 
 def scale_list(l, to_min, to_max):
@@ -77,6 +76,7 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
         # graphed on matrix
         plt.imshow(blank_matrix)
         plt.show()
+        #print('worked')
 
     return [blank_matrix]
 
@@ -96,8 +96,6 @@ def getStockDataLive(key, historical_data, live_data):
     #Make sure the axis are set up correctly
 
     stats = StockDataFrame.retype(stock_data)
-    stock_data['Symbol'] = key
-
     stock_dif = (stock_data['close'] - stock_data['open'])
     stock_dif = stock_dif.values
 
@@ -168,16 +166,21 @@ from collections import deque
 
 
 class Agent:
-    def __init__(self, PRICE_RANGE, TIME_RANGE, is_eval=False, model_name=""):
+    def __init__(self, stocks, PRICE_RANGE, TIME_RANGE, is_eval=False, model_name=""):
         self.price_range = PRICE_RANGE
         self.time_range = TIME_RANGE
 
         self.action_size = 3  # sit, buy, sell
         self.memory = deque(maxlen=500_000)
-        self.inventory = 0
         self.model_name = model_name
         self.is_eval = is_eval
-        self.total_inventory = []
+        self.inventory = dict()
+        self.equity = dict()
+
+        for s in stocks:
+            self.inventory.update({s:0})
+            self.equity.update({s:0})
+
 
         self.gamma = 0.92
         self.epsilon = 0.8
@@ -185,7 +188,8 @@ class Agent:
         self.epsilon_decay = 0.9988
 
         if is_eval:
-            self.model = load_model(model_name)
+            #self.model = load_model(model_name)
+            self.model = self.create_model()
         else:
             self.model = self.create_model()
 
