@@ -49,7 +49,7 @@ def bot_order(action, stock, close, inventory, equity):
     elif action == 2 and inventory > 0:  # sell
         equity += sell * close
         inventory -= sell
-        #sell_option = 0
+        # sell_option = 0
         create_order(stock, sell, "sell", "market", "gtc")
 
     print(f"{stock} : {states[action]}")

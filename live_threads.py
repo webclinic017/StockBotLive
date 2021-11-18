@@ -68,7 +68,7 @@ t2 = Thread(target=bot, args=(database,))
 t1.start()
 t2.start()
 
+'''for i in range(200):
+    database.put(['TSLA', 1, 2, 3, 4, 5, 6])'''
 
-for i in range(200):
-    database.put(['TSLA', 1, 2, 3, 4, 5, 6])
 
