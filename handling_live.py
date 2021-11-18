@@ -188,8 +188,7 @@ class Agent:
         self.epsilon_decay = 0.9988
 
         if is_eval:
-            #self.model = load_model(model_name)
-            self.model = self.create_model()
+            self.model = load_model(model_name)
         else:
             self.model = self.create_model()
 
