@@ -3,7 +3,8 @@ import math
 import requests
 from config import *
 
-states = {0:"Hold", 1:"Buy", 2:"Sell"}
+#states = {0:"Hold", 1:"Buy", 2:"Sell"}
+states = {0:"BUY", 1:"SELL"}
 
 BASE_URL = "https://paper-api.alpaca.markets"
 ACCOUNT_URL = f"{BASE_URL}/v2/account"
