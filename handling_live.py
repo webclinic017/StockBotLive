@@ -170,7 +170,7 @@ class Agent:
         self.price_range = PRICE_RANGE
         self.time_range = TIME_RANGE
 
-        self.action_size = 3  # sit, buy, sell
+        self.action_size = 2  # sit, buy, sell
         self.memory = deque(maxlen=500_000)
         self.model_name = model_name
         self.is_eval = is_eval

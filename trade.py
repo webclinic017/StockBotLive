@@ -41,12 +41,12 @@ def bot_order(action, stock, close, inventory, equity):
     if (action == 2 and inventory == 0) or (action == 1 and equity - (buy * close) <= 0) or (
             action == 1 and buy <= 0):
         print("Hold due to circumstances {}".format(action))
-    elif action == 1 and equity - (buy * close) >= 0:  # buy
+    elif action == 0 and equity - (buy * close) >= 0:  # buy
         equity -= buy * close
         inventory += buy
         #sell_option = 1
         create_order(stock, buy, "buy", "market", "gtc")
-    elif action == 2 and inventory > 0:  # sell
+    elif action == 1 and inventory > 0:  # sell
         equity += sell * close
         inventory -= sell
         # sell_option = 0
