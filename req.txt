@@ -3,3 +3,4 @@ stockstats
 keras 
 pandas-datareader
 opencv-python
+websocket-client
