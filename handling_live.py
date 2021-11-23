@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+import trade
+
 plt.style.use('fivethirtyeight')
 
 import time
@@ -11,6 +13,7 @@ import pandas_datareader as pdr
 from stockstats import *
 import cv2
 from PIL import Image
+import math
 
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D
@@ -176,6 +179,7 @@ class Agent:
         self.is_eval = is_eval
         self.inventory = dict()
         self.equity = dict()
+        self.stocks = stocks
 
         for s in stocks:
             self.inventory.update({s:0})
@@ -235,3 +239,26 @@ class Agent:
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+
+def trade_equities(agent, fb_values, total_money, close_values):
+    for s in agent.stocks:
+
+        agent_equity = agent.equity[s]
+        agent_fb = fb_values[s]
+        agent_inventory = agent.inventory[s]
+        close = close_values[s]
+
+        max_change_equity = total_money*agent_fb
+        if max_change_equity < 0:
+            if abs(max_change_equity) > agent_equity - close:
+                trade.create_order(s, agent_inventory, "sell", "market", "gtc")
+                agent.inventory[s] = 0
+            elif abs(max_change_equity) < agent_equity - close:
+                change_i = math.floor(abs(max_change_equity)/close) + 1
+                trade.create_order(s, change_i, "sell", "market", "gtc")
+                agent.inventory[s] -= change_i
+        elif max_change_equity > 0:
+            added_equity = abs(max_change_equity - agent_equity)
+            agent.equity[s] += added_equity
+
