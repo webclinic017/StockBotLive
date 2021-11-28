@@ -241,24 +241,79 @@ class Agent:
             self.epsilon *= self.epsilon_decay
 
 
-def trade_equities(agent, fb_values, total_money, close_values):
-    for s in agent.stocks:
 
-        agent_equity = agent.equity[s]
+def update_fb(fb_scores, agent, forecast, stock):
+    '''
+        get bot peformance, get forecast
+        make sure fb scores add up to 1
+    '''
+
+
+
+
+
+
+def trade_equities(agent, fb_values, total_money, close_values):
+
+    pool = 0
+
+    #First Pass
+    for s in agent.stocks:
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
         close = close_values[s]
+        cash = agent.equity[s]
+        live_money = agent_inventory*close
+        agent_initial_equity = cash + live_money
+        equity = total_money*agent_fb
 
-        max_change_equity = total_money*agent_fb
-        if max_change_equity < 0:
-            if abs(max_change_equity) > agent_equity - close:
-                trade.create_order(s, agent_inventory, "sell", "market", "gtc")
-                agent.inventory[s] = 0
-            elif abs(max_change_equity) < agent_equity - close:
-                change_i = math.floor(abs(max_change_equity)/close) + 1
-                trade.create_order(s, change_i, "sell", "market", "gtc")
-                agent.inventory[s] -= change_i
-        elif max_change_equity > 0:
-            added_equity = abs(max_change_equity - agent_equity)
-            agent.equity[s] += added_equity
+        change_equity = equity - agent_initial_equity
+
+        if change_equity < 0:
+            if change_equity + cash >= 0:
+                agent.equity[s] += change_equity
+                pool += abs(change_equity)
+            else:
+                change_equity += cash
+                pool += cash
+                sell = 0
+                if agent_inventory * close >= change_equity:
+                    sell = math.floor(abs(change_equity)/close)
+                else:
+                    sell = agent_inventory
+
+                agent.inventory[s] -= sell
+                trade.create_order(s, sell, "sell", "market", "gtc")
+                pool += sell * close
+
+    #Second Pass
+    for s in agent.stocks:
+        agent_fb = fb_values[s]
+        agent_inventory = agent.inventory[s]
+        close = close_values[s]
+        cash = agent.equity[s]
+        live_money = agent_inventory * close
+        agent_initial_equity = cash + live_money
+        equity = total_money * agent_fb
+
+        change_equity = equity - agent_initial_equity
+
+
+        if change_equity > 0:
+            agent.equity[s] += change_equity
+            pool -= change_equity
+
+
+    #Final Third Pass
+
+    if pool > 0:
+        for s in stocks:
+            agent.equity[s] += pool/(len(stocks))
+
+
+
+
+
+
+
 

@@ -15,7 +15,7 @@ HEADERS = {'APCA-API-KEY-ID': API_KEY, 'APCA-API-SECRET-KEY': SECRET_KEY}
 
 def get_equity():
     r = get_account()
-    return float(r['cash'])
+    return float(r['last_equity'])
 
 def get_account():
     r = requests.get(ACCOUNT_URL, headers=HEADERS)
