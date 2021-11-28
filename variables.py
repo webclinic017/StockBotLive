@@ -12,7 +12,7 @@ if MAX_DATA_LENGTH < TIME_RANGE:
 
 stocks = ['TSLA', 'PLUG']
 
-
+#
 database = Queue()
 
 
