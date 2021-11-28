@@ -1,7 +1,7 @@
 from queue import Queue
 
 
-TOTAL_EQUITY = 10000
+TOTAL_EQUITY = 100_000
 equity_center = dict()
 datacenter = dict()
 
@@ -10,9 +10,9 @@ MAX_DATA_LENGTH = 200
 if MAX_DATA_LENGTH < TIME_RANGE:
     MAX_DATA_LENGTH = TIME_RANGE
 
-stocks = ['TSLA', 'PLUG']
+stocks = ['TSLA', 'PLUG', 'AAPL', 'AMZN']
 
-#
+
 database = Queue()
 
 
