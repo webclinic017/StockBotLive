@@ -24,9 +24,6 @@ for s in stocks:
 trade_equities(agent, fb, trade.get_equity(), close_values)
 
 
-
-
-
 for s in stocks:
     print(agent.equity[s])
 

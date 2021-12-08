@@ -28,7 +28,7 @@ def on_message(ws, message):
 
     database.put([data['T'], date, data['o'], data['h'], data['l'], data['c'], data['v']])
 
-    print(f"Stock : {data['T']}, {date}")
+    print(f"Stock : {data['T']}, {date}, {data['c']}")
 
 def on_close(ws):
     print("closed connection")
