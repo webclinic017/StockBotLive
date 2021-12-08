@@ -40,6 +40,7 @@ def scale_list(l, to_min, to_max):
 
 
 def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
+
     closing_values = data[0]
     t = len(closing_values) #Finale value, repersenting live value
     macd = data[1]
@@ -56,6 +57,7 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     blank_matrix_macd = np.zeros((half_scale_size, TIME_RANGE, 3), dtype=np.uint8)
     x_ind = 0
     for s, d in zip(graph_macds, graph_macd):
+
         blank_matrix_macd[int(s), x_ind] = (0, 0, 255)
         blank_matrix_macd[int(d), x_ind] = (255, 175, 0)
         x_ind += 1
@@ -75,7 +77,7 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
 
     blank_matrix = np.vstack([blank_matrix_close, blank_matrix_macd])
 
-    if 2 == 2:
+    if 1 == 2:
         # graphed on matrix
         plt.imshow(blank_matrix)
         plt.show()
@@ -105,13 +107,13 @@ def getStockDataLive(key, historical_data, live_data):
     noise_ma_smoother = 1
     macd = stats.get('macd')
     # stats.get('close_{}_ema'.format(noise_ma_smoother))
-    macd = macd.fillna(method='bfill')
+    macd = macd.fillna(method='pad')
     macd = list(macd.values)
 
     longer_ma_smoother = 7
     macds = stats.get('macds')
     # stats.get('close_{}_ema'.format(longer_ma_smoother))
-    macds = macds.fillna(method='bfill')
+    macds = macds.fillna(method='pad')
     macds = list(macds.values)
 
     closing_values = list(np.array(stock_data['close']))
@@ -193,6 +195,7 @@ class Agent:
 
         if is_eval:
             self.model = load_model(model_name)
+            #self.model = self.create_model()
         else:
             self.model = self.create_model()
 
