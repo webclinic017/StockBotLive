@@ -71,7 +71,7 @@ def bot(in_q):
                                             equity=agent.equity[stock_name])
             except:
                 print('failed to run')
-            sleep(1)
+            sleep(60)
 
 t1 = Thread(target=stream, args=(database,))
 t2 = Thread(target=bot, args=(database,))
