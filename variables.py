@@ -6,7 +6,7 @@ equity_center = dict()
 datacenter = dict()
 
 TIME_RANGE, PRICE_RANGE = 40, 40
-MAX_DATA_LENGTH = 200
+MAX_DATA_LENGTH = 40
 if MAX_DATA_LENGTH < TIME_RANGE:
     MAX_DATA_LENGTH = TIME_RANGE
 
