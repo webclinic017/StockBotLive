@@ -58,4 +58,4 @@ def bot_order(action, stock, close, inventory, equity):
         # sell_option = 0
         create_order(stock, sell, "sell", "market", "gtc")
 
-    print(f"{stock} : {states[action]}")
+    print(f"{stock} : {states[action]} : equity = {get_equity()}")
