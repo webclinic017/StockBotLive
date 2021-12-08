@@ -77,6 +77,6 @@ t1 = Thread(target=stream, args=(database,))
 t2 = Thread(target=bot, args=(database,))
 t1.start()
 t2.start()
-
+#
 for i in range(300):
     database.put(['AMZN', '2021-12-08 17:13:00', 3505.455 + i, 3505.455 + i, 3505.455 + i, 3505.455 + i, 108 + i])
