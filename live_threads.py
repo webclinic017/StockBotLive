@@ -42,7 +42,6 @@ def bot(in_q):
                 if not in_q.empty():
                     while not in_q.empty():
                         data = in_q.get()
-                        print(data)
                         stock_name = data[0]
 
                         input_data = {'close': data[2], 'high': data[3], 'low': data[4], 'open': data[5],
@@ -79,4 +78,5 @@ t2 = Thread(target=bot, args=(database,))
 t1.start()
 t2.start()
 
-
+for i in range(300):
+    database.put(['AMZN', '2021-12-08 17:13:00', 3505.455 + i, 3505.455 + i, 3505.455 + i, 3505.455 + i, 108 + i])
