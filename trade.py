@@ -41,20 +41,24 @@ def get_orders():
 
     return json.loads(r.content)
 
-def bot_order(action, stock, close, inventory, equity):
+def bot_order(action, stock, close, agent):
+
+    equity = agent.equity[stock]
+    inventory = agent.inventory[stock]
+
     buy = math.floor(equity / close)
     sell = inventory
     if (action == 2 and inventory == 0) or (action == 1 and equity - (buy * close) <= 0) or (
             action == 1 and buy <= 0):
         print("Hold due to circumstances {}".format(action))
     elif action == 0 and equity - (buy * close) >= 0:  # buy
-        equity -= buy * close
-        inventory += buy
+        agent.equity[stock] -= buy * close
+        agent.inventory[stock] += buy
         #sell_option = 1
         create_order(stock, buy, "buy", "market", "gtc")
     elif action == 1 and inventory > 0:  # sell
-        equity += sell * close
-        inventory -= sell
+        agent.equity[stock] += sell * close
+        agent.inventory[stock] -= sell
         # sell_option = 0
         create_order(stock, sell, "sell", "market", "gtc")
 
