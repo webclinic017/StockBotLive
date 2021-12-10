@@ -65,8 +65,7 @@ def bot(in_q):
                     trade.bot_order(action=action,
                                     stock=stock_name,
                                     close=datacenter[stock_name]['close'].values[-1],
-                                    agent=agent,
-                                    equity=agent)
+                                    agent=agent)
                     '''
                             try:
 
