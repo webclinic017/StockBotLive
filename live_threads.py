@@ -37,41 +37,38 @@ def bot(in_q):
     print("bot thread connected")
 
     while True:
-        if not in_q.empty():
-            while not in_q.empty():
-                data = in_q.get()
-                stock_name = data[0]
+        try:
+            if not in_q.empty():
+                while not in_q.empty():
+                    data = in_q.get()
+                    stock_name = data[0]
 
-                input_data = {'close': data[2], 'high': data[3], 'low': data[4], 'open': data[5],
-                              'volume': data[6]}
-                datacenter[stock_name] = datacenter[stock_name].append(input_data, ignore_index=True)
-                stock_data_live_length = len(datacenter[stock_name]['close'])
+                    input_data = {'close': data[2], 'high': data[3], 'low': data[4], 'open': data[5],
+                                  'volume': data[6]}
+                    datacenter[stock_name] = datacenter[stock_name].append(input_data, ignore_index=True)
+                    stock_data_live_length = len(datacenter[stock_name]['close'])
 
-                if stock_data_live_length > MAX_DATA_LENGTH:
-                    datacenter[stock_name] = datacenter[stock_name][-MAX_DATA_LENGTH:]
+                    if stock_data_live_length > MAX_DATA_LENGTH:
+                        datacenter[stock_name] = datacenter[stock_name][-MAX_DATA_LENGTH:]
 
-                # historical_data = getHistoricalData(stock_name, MAX_DATA_LENGTH - stock_data_live_length)
+                    # historical_data = getHistoricalData(stock_name, MAX_DATA_LENGTH - stock_data_live_length)
 
-                live_data = datacenter[stock_name]
-                if stock_data_live_length >= MAX_DATA_LENGTH:
-                    processed_live_data = getStockDataLive(stock_name, [], live_data)
-                    live_state = getStateLive(data=processed_live_data,
-                                              sell_option=1,
-                                              TIME_RANGE=TIME_RANGE,
-                                              PRICE_RANGE=PRICE_RANGE)
+                    live_data = datacenter[stock_name]
+                    if stock_data_live_length >= MAX_DATA_LENGTH:
+                        processed_live_data = getStockDataLive(stock_name, [], live_data)
+                        live_state = getStateLive(data=processed_live_data,
+                                                  sell_option=1,
+                                                  TIME_RANGE=TIME_RANGE,
+                                                  PRICE_RANGE=PRICE_RANGE)
 
-                    action = agent.act(live_state)
+                        action = agent.act(live_state)
 
-                    trade.bot_order(action=action,
-                                    stock=stock_name,
-                                    close=datacenter[stock_name]['close'].values[-1],
-                                    agent=agent)
-                    '''
-                            try:
-
+                        trade.bot_order(action=action,
+                                        stock=stock_name,
+                                        close=datacenter[stock_name]['close'].values[-1],
+                                        agent=agent)
         except:
             print('failed to run')
-                    '''
 
         sleep(1)
 
