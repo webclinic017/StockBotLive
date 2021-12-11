@@ -48,8 +48,8 @@ def bot_order(action, stock, close, agent):
 
     buy = math.floor(equity / close)
     sell = inventory
-    if (action == 2 and inventory == 0) or (action == 1 and equity - (buy * close) <= 0) or (
-            action == 1 and buy <= 0):
+    if (action == 1 and inventory == 0) or (action == 0 and equity - (buy * close) <= 0) or (
+            action == 0 and buy <= 0):
         print("Hold due to circumstances {}".format(action))
     elif action == 0 and equity - (buy * close) >= 0:  # buy
         agent.equity[stock] -= buy * close
