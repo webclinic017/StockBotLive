@@ -8,7 +8,8 @@ import pandas as pd
 import trade
 from variables import *
 
-model_name = '/content/drive/MyDrive/StockBot/models/stock_bot_comp/CNN/model_3/model_3_4_20'
+#model_name = '/content/drive/MyDrive/StockBot/models/stock_bot_comp/CNN/model_3/model_3_4_20'
+model_name = 'C:/Users/nir/PycharmProjects/StockBotLive/model/stockbot/model_3_4_20'
 agent = Agent(stocks=stocks, TIME_RANGE=TIME_RANGE, PRICE_RANGE=PRICE_RANGE, is_eval=True, model_name=model_name)
 
 fb = dict()
