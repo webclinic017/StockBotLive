@@ -10,7 +10,7 @@ MAX_DATA_LENGTH = 50
 if MAX_DATA_LENGTH < TIME_RANGE:
     MAX_DATA_LENGTH = TIME_RANGE
 
-stocks = ['TSLA', 'PLUG', 'AAPL', 'AMZN']
+stocks = ['TSLA', 'PLUG', 'AAPL', 'AMZN', 'MSFT', 'NVDA']
 
 
 database = Queue()

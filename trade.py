@@ -12,6 +12,9 @@ ORDERS_URL = f"{BASE_URL}/v2/orders"
 HEADERS = {'APCA-API-KEY-ID': API_KEY, 'APCA-API-SECRET-KEY': SECRET_KEY}
 
 
+def get_cash():
+    r = get_account()
+    return float(r['cash'])
 
 def get_equity():
     r = get_account()

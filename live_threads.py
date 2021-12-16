@@ -21,7 +21,7 @@ for s in stocks:
     close_values.update({s: 0})
     fb.update({s: 1 / (len(stocks))})
 
-trade_equities(agent, fb, trade.get_equity(), close_values)
+trade_equities(agent, fb, trade.get_equity(), close_values, trade.get_cash())
 
 for s in stocks:
     print(agent.equity[s])

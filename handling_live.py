@@ -253,12 +253,9 @@ def update_fb(fb_scores, agent, forecast, stock):
 
 
 
+def trade_equities(agent, fb_values, total_money, close_values, cash):
 
-
-
-def trade_equities(agent, fb_values, total_money, close_values):
-
-    pool = 0
+    pool = cash
 
     #First Pass
     for s in agent.stocks:
