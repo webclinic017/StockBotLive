@@ -66,3 +66,5 @@ def bot_order(action, stock, close, agent):
         create_order(stock, sell, "sell", "market", "gtc")
 
     print(f"{stock} : {states[action]}")
+
+get_equity()
