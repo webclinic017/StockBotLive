@@ -56,9 +56,9 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     x_ind = 0
     for s, d in zip(graph_macds, graph_macd):
         if math.isnan(s):
-            s = PRICE_RANGE / 4
+            s = PRICE_RANGE - 10
         if math.isnan(d):
-            d = PRICE_RANGE / 4
+            d = PRICE_RANGE - 10
         blank_matrix_macd[int(s), x_ind] = (0, 0, 255)
         blank_matrix_macd[int(d), x_ind] = (255, 175, 0)
         x_ind += 1
