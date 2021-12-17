@@ -28,7 +28,6 @@ import math
 from variables import *
 
 
-
 def scale_list(l, to_min, to_max):
     def scale_number(unscaled, to_min, to_max, from_min, from_max):
         return (to_max - to_min) * (unscaled - from_min) / (from_max - from_min) + to_min
@@ -40,9 +39,8 @@ def scale_list(l, to_min, to_max):
 
 
 def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
-
     closing_values = data[0]
-    t = len(closing_values) #Finale value, repersenting live value
+    t = len(closing_values)  # Finale value, repersenting live value
     macd = data[1]
     macds = data[2]
     # print(closing_values)
@@ -57,7 +55,10 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     blank_matrix_macd = np.zeros((half_scale_size, TIME_RANGE, 3), dtype=np.uint8)
     x_ind = 0
     for s, d in zip(graph_macds, graph_macd):
-
+        if math.isnan(s):
+            s = PRICE_RANGE / 4
+        if math.isnan(d):
+            d = PRICE_RANGE / 4
         blank_matrix_macd[int(s), x_ind] = (0, 0, 255)
         blank_matrix_macd[int(d), x_ind] = (255, 175, 0)
         x_ind += 1
@@ -81,14 +82,12 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
         # graphed on matrix
         plt.imshow(blank_matrix)
         plt.show()
-        #print('worked')
+        # print('worked')
 
     return [blank_matrix]
 
+
 def getHistoricalData(key, length_data):
-
-
-
     return 0
 
 
@@ -98,7 +97,7 @@ def getStockDataLive(key, historical_data, live_data):
     else:
         stock_data = live_data
 
-    #Make sure the axis are set up correctly
+    # Make sure the axis are set up correctly
 
     stats = StockDataFrame.retype(stock_data)
     stock_dif = (stock_data['close'] - stock_data['open'])
@@ -121,7 +120,6 @@ def getStockDataLive(key, historical_data, live_data):
     return_data = [closing_values, macd, macds]
 
     return return_data
-
 
 
 # prints formatted price
@@ -157,7 +155,6 @@ def fix_input(state):
     return state
 
 
-
 import keras
 from keras.models import Sequential
 from keras.models import load_model
@@ -184,18 +181,17 @@ class Agent:
         self.stocks = stocks
 
         for s in stocks:
-            self.inventory.update({s:0})
-            self.equity.update({s:0})
-
+            self.inventory.update({s: 0})
+            self.equity.update({s: 0})
 
         self.gamma = 0.92
         self.epsilon = 0.8
         self.epsilon_min = 0.001
         self.epsilon_decay = 0.9988
-#
+        #
         if is_eval:
             self.model = load_model(model_name)
-            #self.model = self.create_model()
+            # self.model = self.create_model()
         else:
             self.model = self.create_model()
 
@@ -244,7 +240,6 @@ class Agent:
             self.epsilon *= self.epsilon_decay
 
 
-
 def update_fb(fb_scores, agent, forecast, stock):
     '''
         get bot peformance, get forecast
@@ -252,20 +247,18 @@ def update_fb(fb_scores, agent, forecast, stock):
     '''
 
 
-
 def trade_equities(agent, fb_values, total_money, close_values, cash):
-
     pool = cash
 
-    #First Pass
+    # First Pass
     for s in agent.stocks:
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
         close = close_values[s]
         cash = agent.equity[s]
-        live_money = agent_inventory*close
+        live_money = agent_inventory * close
         agent_initial_equity = cash + live_money
-        equity = total_money*agent_fb
+        equity = total_money * agent_fb
 
         change_equity = equity - agent_initial_equity
 
@@ -278,7 +271,7 @@ def trade_equities(agent, fb_values, total_money, close_values, cash):
                 pool += cash
                 sell = 0
                 if agent_inventory * close >= change_equity:
-                    sell = math.floor(abs(change_equity)/close)
+                    sell = math.floor(abs(change_equity) / close)
                 else:
                     sell = agent_inventory
 
@@ -286,7 +279,7 @@ def trade_equities(agent, fb_values, total_money, close_values, cash):
                 trade.create_order(s, sell, "sell", "market", "gtc")
                 pool += sell * close
 
-    #Second Pass
+    # Second Pass
     for s in agent.stocks:
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
@@ -298,22 +291,12 @@ def trade_equities(agent, fb_values, total_money, close_values, cash):
 
         change_equity = equity - agent_initial_equity
 
-
         if change_equity > 0:
             agent.equity[s] += change_equity
             pool -= change_equity
 
-
-    #Final Third Pass
+    # Final Third Pass
 
     if pool > 0:
         for s in stocks:
-            agent.equity[s] += pool/(len(stocks))
-
-
-
-
-
-
-
-
+            agent.equity[s] += pool / (len(stocks))
