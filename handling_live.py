@@ -127,26 +127,6 @@ def formatPrice(n):
     return ("-$" if n < 0 else "$") + "{0:.2f}".format(abs(n))
 
 
-def getBotPeformance(raw_data, window_size):
-    # DATA is peformance data of bot, so : Total Profit made by bot in percent
-    # DATA = total_profit |  initial_profit *should only change if bot is selling
-    raw_data = np.array(raw_data)
-    data = (raw_data[0]) / (abs(raw_data[1]))
-    # ADD more transformations later
-    for i in range(data.shape[0]):
-        if math.isnan(data[i]):
-            data[i] = 0
-    # data[i] = sigmoid(data[i])
-
-    return_data = []
-    if data.shape[0] >= window_size:
-        return_data = data[-window_size:]
-    else:
-        d = (window_size - data.shape[0] + 1)
-        return_data = np.concatenate((data[0:-1], d * [data[-1]]), axis=None)
-    return return_data
-
-
 def fix_input(state):
     state = np.array(state)
     img_rows, img_cols = TIME_RANGE, PRICE_RANGE
@@ -247,7 +227,7 @@ def getBotPeformance(profit_data, stock):
 
     performance = (p_d[0]) / (abs(p_d[1]))
     print(performance)
-    return performance
+    return performance/2
 
 
 def update_fb(fb_scores, performance, forecast, stock, stocks):
