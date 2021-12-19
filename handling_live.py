@@ -251,6 +251,8 @@ def update_fb(fb_scores, performance, forecast, stock, stocks):
 
     normalize_data(fb_scores, stocks)
 
+    print(fb_scores)
+
 
 def normalize_data(fb_scores, stocks):
     sum = 0
