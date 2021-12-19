@@ -4,6 +4,11 @@ from queue import Queue
 TOTAL_EQUITY = 100_000
 equity_center = dict()
 datacenter = dict()
+fb = dict()
+close_values = dict()
+
+#Profit data : stock - [total_profit, initial_equity]
+profit_data = dict()
 
 TIME_RANGE, PRICE_RANGE = 40, 40
 MAX_DATA_LENGTH = 50

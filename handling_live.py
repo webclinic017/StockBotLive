@@ -239,6 +239,16 @@ class Agent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+def getBotPeformance(profit_data, stock):
+    # DATA is peformance data of bot, so : Total Profit made by bot in percent
+    # DATA = total_profit |  initial_profit *should only change if bot is selling
+
+    p_d = profit_data[stock]
+
+    performance = (p_d[0]) / (abs(p_d[1]))
+    print(performance)
+    return performance
+
 
 def update_fb(fb_scores, performance, forecast, stock, stocks):
     '''
