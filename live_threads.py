@@ -54,6 +54,7 @@ def bot(in_q):
                 # historical_data = getHistoricalData(stock_name, MAX_DATA_LENGTH - stock_data_live_length)
 
                 live_data = datacenter[stock_name]
+                close_values[stock_name] = datacenter[stock_name]['close'].values[-1]
                 if stock_data_live_length >= MAX_DATA_LENGTH:
                     processed_live_data = getStockDataLive(stock_name, [], live_data)
                     live_state = getStateLive(data=processed_live_data,
@@ -67,6 +68,25 @@ def bot(in_q):
                                     stock=stock_name,
                                     close=datacenter[stock_name]['close'].values[-1],
                                     agent=agent)
+
+                    #Forecast bot
+
+                    forecast = 0
+
+                    #Get Peformance
+
+                    performance = 0
+                    update_fb(fb_scores=fb,
+                              performance=performance,
+                              forecast=forecast,
+                              stock=stock_name)
+
+                    trade_equities(agent=agent,
+                                   fb_values=fb,
+                                   total_money=trade.get_equity(),
+                                   close_values=close_values,
+                                   cash=trade.get_cash())
+
         sleep(1)
 
 

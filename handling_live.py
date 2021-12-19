@@ -240,12 +240,24 @@ class Agent:
             self.epsilon *= self.epsilon_decay
 
 
-def update_fb(fb_scores, agent, forecast, stock):
+def update_fb(fb_scores, performance, forecast, stock, stocks):
     '''
         get bot peformance, get forecast
         make sure fb scores add up to 1
     '''
 
+    fb_stock = performance + forecast
+    fb_scores[stock] = fb_stock
+
+    normalize_data(fb_scores, stocks)
+
+
+def normalize_data(fb_scores, stocks):
+    sum = 0
+    for s in stocks:
+        sum += fb_scores[s]
+    for s in stocks:
+        fb_scores[s] = fb_scores[s]/sum
 
 def trade_equities(agent, fb_values, total_money, close_values, cash):
     pool = cash
