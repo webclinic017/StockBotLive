@@ -85,7 +85,8 @@ def bot(in_q):
                     update_fb(fb_scores=fb,
                               performance=performance,
                               forecast=forecast,
-                              stock=stock_name)
+                              stock=stock_name,
+                              stocks=stocks)
 
                     #Trading
 
