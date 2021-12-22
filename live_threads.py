@@ -62,6 +62,9 @@ def bot(in_q):
                                               TIME_RANGE=TIME_RANGE,
                                               PRICE_RANGE=PRICE_RANGE)
 
+
+                    #Stock Bot acting for Stock
+
                     action = agent.act(live_state)
 
                     trade.bot_order(action=action,
@@ -77,10 +80,14 @@ def bot(in_q):
                     #Get Peformance
 
                     performance = getBotPeformance(profit_data=profit_data, stock=stock_name)
+
+                    #Update FB scores
                     update_fb(fb_scores=fb,
                               performance=performance,
                               forecast=forecast,
                               stock=stock_name)
+
+                    #Trading
 
                     trade_equities(agent=agent,
                                    fb_values=fb,
