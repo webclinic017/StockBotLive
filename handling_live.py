@@ -226,7 +226,7 @@ def getBotPeformance(profit_data, stock):
     p_d = profit_data[stock]
 
     performance = (p_d[0]) / (abs(p_d[1]))
-    print(performance)
+    print(profit_data)
     return performance/2
 
 
