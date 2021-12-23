@@ -103,3 +103,4 @@ t1 = Thread(target=stream, args=(database,))
 t2 = Thread(target=bot, args=(database,))
 t1.start()
 t2.start()
+
