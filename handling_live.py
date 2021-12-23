@@ -251,8 +251,12 @@ def normalize_data(fb_scores, stocks):
     for s in stocks:
         fb_scores[s] = fb_scores[s]/sum
 
-def trade_equities(agent, fb_values, total_money, close_values, cash):
-    pool = cash
+def trade_equities(agent, fb_values, total_money, close_values, init_cash):
+
+    if init_cash > 0:
+        pool = init_cash
+    else:
+        pool = 0
 
     # First Pass
     for s in agent.stocks:

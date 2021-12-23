@@ -94,7 +94,7 @@ def bot(in_q):
                                    fb_values=fb,
                                    total_money=trade.get_equity(),
                                    close_values=close_values,
-                                   cash=trade.get_cash())
+                                   init_cash=trade.get_cash())
 
         sleep(1)
 
