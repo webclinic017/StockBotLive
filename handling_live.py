@@ -14,7 +14,6 @@ import stockstats
 import cv2
 from PIL import Image
 import math
-from stock_indicators import indicators
 
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D
