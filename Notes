@@ -1,0 +1,8 @@
+okay so you have a few things that need to be fixed and added.
+
+1.) Add in getting total equity, and total cash
+2.) Fix the graph_ema, sma, close-open ---> For some reason it's returning constant values
+3.) Add in and train a good nuerel network to predict with
+4.) Fix where if stocks goes above 5 it messes up
+5.) Forecast and peformance fix?
+6.) Fix stupid error message

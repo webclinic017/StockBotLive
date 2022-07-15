@@ -10,10 +10,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas_datareader as pdr
-from stockstats import *
+import stockstats
 import cv2
 from PIL import Image
 import math
+from stock_indicators import indicators
 
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D
@@ -22,7 +23,6 @@ from keras.callbacks import EarlyStopping
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer, RobustScaler, MaxAbsScaler, PowerTransformer
 from keras.applications.xception import Xception
-from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import math
 from variables import *
@@ -38,6 +38,51 @@ def scale_list(l, to_min, to_max):
         return [scale_number(i, to_min, to_max, min(l), max(l)) for i in l]
 
 
+def getStateLive(data):
+    closing_values = data[0]
+    cnt = len(closing_values)
+    stock_ema3 = data[1]
+    stock_sma3 = data[2]
+    close_minus_open = data[3]
+
+    graph_ema3 = list(np.round(scale_list(stock_ema3[cnt - TIME_RANGE:cnt], 0, half_scale_size - 1), 0))
+    graph_sma3 = list(np.round(scale_list(stock_sma3[cnt - TIME_RANGE:cnt], 0, half_scale_size - 1), 0))
+    graph_close_minus_open = list(
+        np.round(scale_list(close_minus_open[cnt - TIME_RANGE:cnt], 0, half_scale_size - 1), 0))
+
+    blank_matrix_close = np.zeros(shape=(half_scale_size, TIME_RANGE))
+    x_ind = 0
+    for ma, c in zip(graph_ema3, graph_sma3):
+        if np.isnan(ma):
+            ma = 0
+        if np.isnan(c):
+            c = 0
+        blank_matrix_close[int(ma), x_ind] = 1
+        blank_matrix_close[int(c), x_ind] = 2
+        x_ind += 1
+
+    blank_matrix_close = blank_matrix_close[::-1]
+
+    blank_matrix_diff = np.zeros(shape=(half_scale_size, TIME_RANGE))
+    x_ind = 0
+    for v in graph_close_minus_open:
+        if np.isnan(v):
+            v = 0
+        blank_matrix_diff[int(v), x_ind] = 3
+        x_ind += 1
+        # flip x scale so high number is atop, low number at bottom - cosmetic, humans only
+    blank_matrix_diff = blank_matrix_diff[::-1]
+
+    blank_matrix = np.vstack([blank_matrix_close, blank_matrix_diff])
+
+    if 1 == 2:
+        # graphed on matrix
+        plt.imshow(blank_matrix)
+        plt.show()
+
+    return [blank_matrix]
+
+'''
 def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     closing_values = data[0]
     t = len(closing_values)  # Finale value, repersenting live value
@@ -85,39 +130,45 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
         # print('worked')
 
     return [blank_matrix]
-
+'''
 
 def getHistoricalData(key, length_data):
     return 0
 
 
 def getStockDataLive(key, historical_data, live_data):
+    stock_data = None
+    stats = None
     if len(live_data) < MAX_DATA_LENGTH:
         stock_data = historical_data[-(MAX_DATA_LENGTH - len(live_data)):] + live_data
     else:
         stock_data = live_data
 
-    # Make sure the axis are set up correctly
 
-    stats = StockDataFrame.retype(stock_data)
-    stock_dif = (stock_data['close'] - stock_data['open'])
-    stock_dif = stock_dif.values
+    ema3 = stock_data['close'].ewm(span=3, adjust=False).mean()
+    ema3 = ema3.fillna(method='bfill')
+    ema3 = list(ema3.values)
 
-    noise_ma_smoother = 1
-    macd = stats.get('macd')
-    # stats.get('close_{}_ema'.format(noise_ma_smoother))
-    macd = macd.fillna(method='pad')
-    macd = list(macd.values)
 
-    longer_ma_smoother = 7
-    macds = stats.get('macds')
-    # stats.get('close_{}_ema'.format(longer_ma_smoother))
-    macds = macds.fillna(method='pad')
-    macds = list(macds.values)
+    sma3 = stock_data['open'].rolling(3).mean()
+    sma3 = sma3.fillna(method='bfill')
+    sma3 = list(sma3.values)
+
+    stock_opens = stock_data['open'].rolling(3).mean()
+    stock_opens = stock_opens.fillna(method='bfill')
+    stock_opens = list(stock_opens.values)
 
     closing_values = list(np.array(stock_data['close']))
 
-    return_data = [closing_values, macd, macds]
+    stock_closes = stock_data['close'].ewm(span=3, adjust=False).mean()
+    stock_closes = stock_closes.fillna(method='bfill')
+    stock_closes = list(stock_closes.values)
+
+    closing_values = list(np.array(stock_data['close']))
+
+    close_minus_open = list(np.array(stock_closes) - np.array(stock_opens))
+
+    return_data = [closing_values, ema3, sma3, close_minus_open]
 
     return return_data
 
@@ -139,7 +190,6 @@ import keras
 from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Dense, LSTM, Dropout
-from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 
 import numpy as np
@@ -168,16 +218,12 @@ class Agent:
         self.epsilon = 0.8
         self.epsilon_min = 0.001
         self.epsilon_decay = 0.9988
-        #
-        if is_eval:
-            self.model = load_model(model_name)
-            #self.model = self.create_model()
-        else:
-            self.model = self.create_model()
 
-        # self.model = load_model('/content/drive/MyDrive/StockBot/models/stock_bot_comp/CNN/model_4/model_4_1_20')
-
+        self.model = load_model(model_name)
+        print('Loaded Model ', model_name)
+        '''
     def create_model(self):
+        
         input_shape_1 = (self.time_range, self.price_range, 3)
 
         model = Sequential()
@@ -189,15 +235,12 @@ class Agent:
         model.add(Dense(self.action_size, activation='linear'))
 
         model.compile(loss='mse', optimizer=Adam(learning_rate=.001), metrics=['accuracy'])
-
-        return model
-
+        return 0
+        '''
     def act(self, state):
-        if not self.is_eval and random.random() <= self.epsilon:
-            return random.randrange(self.action_size)
-        options = self.model.predict(fix_input(state))
-        print(options)
-        return np.argmax(options[0])
+        action = self.model.predict(state)
+        #action = 0
+        return action
 
     def expReplay(self, batch_size):
         mini_batch = []
@@ -219,17 +262,6 @@ class Agent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-def getBotPeformance(profit_data, stock):
-    # DATA is peformance data of bot, so : Total Profit made by bot in percent
-    # DATA = total_profit |  initial_profit *should only change if bot is selling
-
-    p_d = profit_data[stock]
-
-    performance = (p_d[0]) / (abs(p_d[1]))
-    print(profit_data)
-    return performance/2
-
-
 def update_fb(fb_scores, performance, forecast, stock, stocks):
     '''
         get bot peformance, get forecast
@@ -242,6 +274,16 @@ def update_fb(fb_scores, performance, forecast, stock, stocks):
     normalize_data(fb_scores, stocks)
 
     print(fb_scores)
+
+def getBotPeformance(profit_data, stock):
+    # DATA should be
+    # Equity of bot right before it buys | Equity of bot right after it sells
+
+    p_d = profit_data[stock]
+
+    performance = p_d[1]/p_d[0]
+    print(profit_data)
+    return performance/2
 
 
 def normalize_data(fb_scores, stocks):
@@ -257,7 +299,6 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         pool = init_cash
     else:
         pool = 0
-
     # First Pass
     for s in agent.stocks:
         agent_fb = fb_values[s]
@@ -267,25 +308,28 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         live_money = agent_inventory * close
         agent_initial_equity = cash + live_money
         equity = total_money * agent_fb
-
         change_equity = equity - agent_initial_equity
 
         if change_equity < 0:
+
             if change_equity + cash >= 0:
-                agent.equity[s] += change_equity
+                agent.equity[s] -= abs(change_equity)
                 pool += abs(change_equity)
+                profit_data[s][1] = agent.equity[s]
             else:
                 change_equity += cash
                 pool += cash
-                sell = 0
-                if agent_inventory * close >= change_equity:
-                    sell = math.floor(abs(change_equity) / close)
-                else:
-                    sell = agent_inventory
+                sell_2 = 0
+                if agent_inventory * close >= change_equity and agent_inventory >= 0:
+                    sell_2 = math.floor(abs(change_equity) / close)
+                elif agent_inventory >= 0:
+                    sell_2 = agent_inventory
 
-                agent.inventory[s] -= sell
-                trade.create_order(s, sell, "sell", "market", "gtc")
-                pool += sell * close
+                agent.inventory[s] -= sell_2
+                agent.equity[s] -= sell_2*close
+                #trade.create_order(s, sell_2, "sell", "market", "gtc")
+                pool += sell_2 * close
+
 
     # Second Pass
     for s in agent.stocks:
@@ -304,7 +348,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
             pool -= change_equity
 
     # Final Third Pass
-
+    #print('***', pool)
     if pool > 0:
         for s in stocks:
             agent.equity[s] += pool / (len(stocks))
