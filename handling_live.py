@@ -79,6 +79,11 @@ def getStateLive(data):
         plt.imshow(blank_matrix)
         plt.show()
 
+    x_train = [blank_matrix]
+    x_train = np.array(x_train)
+    x_train = x_train.reshape(x_train.shape[0], 20, 20, 1)
+    x_train = x_train.astype('float32')
+
     return [blank_matrix]
 
 '''
