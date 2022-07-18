@@ -22,7 +22,7 @@ def getStockData(stock):
 
     return [close, high, low, open, volume]
 
-
+#
 def file_data(STOCKS):
     datatemp = []
     datac = []
