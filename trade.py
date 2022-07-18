@@ -67,11 +67,12 @@ def bot_order(action, stock, close, agent, profit_data):
     sell = inventory
 
 
-    print(f"*{action}*")
+    #print(f"*{action}*")
     if (action == 1 and inventory == 0) or (action == 0 and equity - (buy * close) <= 0) or (
             action == 0 and buy <= 0):
         print("Hold due to circumstances {}".format(action))
     elif action == 0 and equity - (buy * close) >= 0:  # buy
+        #print(f'Stock : {stock} Equity : {equity} Inventory : {inventory} Close : {close}')
         profit_data[stock][0] = agent.equity[stock]
         agent.equity[stock] -= buy * close
         agent.inventory[stock] += buy
@@ -85,4 +86,4 @@ def bot_order(action, stock, close, agent, profit_data):
         #create_order(stock, sell, "sell", "market", "gtc")
         profit_data[stock][1] = agent.equity[stock]
 
-    print(f"{stock} : {states[action]}")
+    #print(f"{stock} : {states[action]}")

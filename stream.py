@@ -26,7 +26,7 @@ def on_message(ws, message):
     date = date.strftime('%Y-%m-%d %H:%M:%S')
 
 
-    database.put([data['T'], date, data['o'], data['h'], data['l'], data['c'], data['v']])
+    database.put([data['T'], date, data['c'], data['h'], data['l'], data['o'], data['v']])
 
     print(f"Stock : {data['T']}, {date}, {data['c']}")
 

@@ -10,7 +10,7 @@ from static import *
 from pandas import *
 import stockstats
 
-model_name = ''
+model_name = 'C:/Users/nirmi/PycharmProjects/StockBotLive/model_ema_sma_1.h5py'
 #model_name = '/Users/nirmi/PycharmProjects/StockBotLive/model_ema_sma_1.h5py'
 #model_name = 'C:/Users/nir/PycharmProjects/StockBotLive/model/stockbot/model_3_4_20'
 agent = Agent(stocks=stocks, TIME_RANGE=TIME_RANGE, PRICE_RANGE=PRICE_RANGE, is_eval=True, model_name=model_name)
@@ -37,7 +37,6 @@ datac = file_data(stocks)
 '''
 Get Static Data
 '''
-
 
 # A thread that produces data
 def stream(out_q):
@@ -90,7 +89,6 @@ def bot(in_q):
                     forecast = 0
 
                     #Get Peformance
-
                     performance = getBotPeformance(profit_data=profit_data, stock=stock_name)
 
                     #Update FB scores
@@ -111,6 +109,8 @@ def bot(in_q):
                     for s in stocks:
                         total_equity += agent.equity[s] + agent.inventory[s] * close_values[s]
                     print(total_equity)
+
+
 
 
 t1 = Thread(target=stream, args=(database,))

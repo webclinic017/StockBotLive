@@ -14,6 +14,7 @@ import stockstats
 import cv2
 from PIL import Image
 import math
+from variables import *
 
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D
@@ -24,7 +25,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer, Robu
 from keras.applications.xception import Xception
 import tensorflow as tf
 import math
-from variables import *
 
 
 def scale_list(l, to_min, to_max):
@@ -84,7 +84,7 @@ def getStateLive(data):
     x_train = x_train.reshape(x_train.shape[0], 20, 20, 1)
     x_train = x_train.astype('float32')
 
-    return [blank_matrix]
+    return x_train
 
 '''
 def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
@@ -242,9 +242,10 @@ class Agent:
         return 0
         '''
     def act(self, state):
-        action = self.model.predict(state)
+        #action = self.model.predict(state)
         #action = 0
-        return action
+
+        return 0#np.argmax(action)
 
     def expReplay(self, batch_size):
         mini_batch = []
@@ -277,7 +278,7 @@ def update_fb(fb_scores, performance, forecast, stock, stocks):
 
     normalize_data(fb_scores, stocks)
 
-    print(fb_scores)
+    #print(fb_scores)
 
 def getBotPeformance(profit_data, stock):
     # DATA should be
@@ -287,7 +288,7 @@ def getBotPeformance(profit_data, stock):
 
     performance = p_d[1]/p_d[0]
     print(profit_data)
-    return performance/2
+    return performance
 
 
 def normalize_data(fb_scores, stocks):
@@ -297,14 +298,16 @@ def normalize_data(fb_scores, stocks):
     for s in stocks:
         fb_scores[s] = fb_scores[s]/sum
 
-def trade_equities(agent, fb_values, total_money, close_values, init_cash):
 
+def trade_equities(agent, fb_values, total_money, close_values, init_cash):
+    pool_sum = 0
     if init_cash > 0:
         pool = init_cash
     else:
         pool = 0
     # First Pass
     for s in agent.stocks:
+
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
         close = close_values[s]
@@ -313,6 +316,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         agent_initial_equity = cash + live_money
         equity = total_money * agent_fb
         change_equity = equity - agent_initial_equity
+        print(f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
 
         if change_equity < 0:
 
@@ -321,6 +325,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                 pool += abs(change_equity)
                 profit_data[s][1] = agent.equity[s]
             else:
+                print(s, ' SOLD')
                 change_equity += cash
                 pool += cash
                 sell_2 = 0
@@ -330,10 +335,16 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                     sell_2 = agent_inventory
 
                 agent.inventory[s] -= sell_2
-                agent.equity[s] -= sell_2*close
-                #trade.create_order(s, sell_2, "sell", "market", "gtc")
-                pool += sell_2 * close
+                if sell_2*close > agent.equity[s]:
+                    pool += agent.equity[s]
+                    agent.equity[s] = 0
+                else:
+                    pool += sell_2 * close
+                    agent.equity[s] -= sell_2*close
 
+                #trade.create_order(s, sell_2, "sell", "market", "gtc")
+
+                pool_sum += pool
 
     # Second Pass
     for s in agent.stocks:
@@ -349,10 +360,15 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
 
         if change_equity > 0:
             agent.equity[s] += change_equity
-            pool -= change_equity
+            pool -= abs(change_equity)
+            pool_sum += pool
 
     # Final Third Pass
     #print('***', pool)
+    sub = 0
     if pool > 0:
         for s in stocks:
             agent.equity[s] += pool / (len(stocks))
+            sub += pool / (len(stocks))
+    pool_sum -= sub
+    print(pool_sum)
