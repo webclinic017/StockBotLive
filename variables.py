@@ -3,12 +3,17 @@ import pip
 #pip.main(['install','stockstats == 0.4.1'])
 #pip.main(['install','tensorflow'])
 #pip.main(['install','sklearn'])
-TOTAL_EQUITY = 100
+#pip.main(['install', 'alpaca_trade_api'])
+#pip.main(['install', 'ibapi'])
+
+TOTAL_EQUITY = 100_000
 equity_center = dict()
 datacenter = dict()
 fb = dict()
 close_values = dict()
-
+time_stamps = dict()
+performances = dict()
+live_values = dict()
 #Profit data : stock - [total_profit, initial_equity]
 profit_data = dict()
 
@@ -18,8 +23,8 @@ MAX_DATA_LENGTH = 20
 if MAX_DATA_LENGTH < TIME_RANGE:
     MAX_DATA_LENGTH = TIME_RANGE
 
-stocks = ['AMZN', 'SPCE', 'SNDL', 'PLUG']
-#stocks = ['TSLA','CAT','CSCO','CVX','DIS','DWDP','GE','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT','NKE','PFE','PG','TRV','UNH','UTX','V','VZ','WMT','XOM']
+stocks = ['AFL', 'DOX', 'HON', 'BCE', 'BRK.B', 'L', 'PEP', 'KO', 'LIT']
+#stocks = ['AMZN', 'SPCE', 'SNDL', 'PLUG','TSLA','CAT','CSCO','CVX','DIS','PLUG','GE','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT']#,'NKE','PFE','PG','TRV','UNH','UTX','V','VZ','WMT','XOM']
 
 database = Queue()
 

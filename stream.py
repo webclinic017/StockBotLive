@@ -25,7 +25,6 @@ def on_message(ws, message):
     date = datetime.datetime.fromtimestamp(ms/1000.0)
     date = date.strftime('%Y-%m-%d %H:%M:%S')
 
-
     database.put([data['T'], date, data['c'], data['h'], data['l'], data['o'], data['v']])
 
     print(f"Stock : {data['T']}, {date}, {data['c']}")
@@ -35,6 +34,11 @@ def on_close(ws):
 
 
 def stream_live():
-    socket = "wss://data.alpaca.markets/stream"
+    socket = "wss://stream.data.alpaca.markets/v2/AAPL"
+
+
     ws = websocket.WebSocketApp(socket, on_open=on_open, on_message=on_message, on_close=on_close)
     ws.run_forever()
+
+
+#stream_live()

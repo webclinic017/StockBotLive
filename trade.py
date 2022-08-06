@@ -2,6 +2,8 @@ import json
 import math
 import requests
 from config import *
+import random
+
 
 #states = {0:"Hold", 1:"Buy", 2:"Sell"}
 states = {0:"BUY", 1:"SELL"}
@@ -10,6 +12,9 @@ BASE_URL = "https://paper-api.alpaca.markets"
 ACCOUNT_URL = f"{BASE_URL}/v2/account"
 ORDERS_URL = f"{BASE_URL}/v2/orders"
 HEADERS = {'APCA-API-KEY-ID': API_KEY, 'APCA-API-SECRET-KEY': SECRET_KEY}
+MARKET_URL = "wss://stream.data.sandbox.alpaca.markets/v2/{source}"
+
+
 
 
 def getTotalMoney(agent, close_values, stocks):
@@ -24,15 +29,13 @@ def getTotalCash(agent, stocks):
         sum += agent.equity[s]
     return sum
 
-def get_cash(agent, stocks):
-    #r = get_account()
-    #return float(r['cash'])
-    return getTotalCash(agent, stocks)
+def get_cash():
+    r = get_account()
+    return float(r['cash'])
 
-def get_equity(agent, close_values, stocks):
-    #r = get_account()
-    #return float
-    return getTotalMoney(agent, close_values, stocks)
+def get_equity():
+    r = get_account()
+    return float(r['equity'])
 
 def get_account():
     r = requests.get(ACCOUNT_URL, headers=HEADERS)
@@ -66,7 +69,6 @@ def bot_order(action, stock, close, agent, profit_data):
     buy = math.floor(equity / close)
     sell = inventory
 
-
     #print(f"*{action}*")
     if (action == 1 and inventory == 0) or (action == 0 and equity - (buy * close) <= 0) or (
             action == 0 and buy <= 0):
@@ -77,13 +79,13 @@ def bot_order(action, stock, close, agent, profit_data):
         agent.equity[stock] -= buy * close
         agent.inventory[stock] += buy
         #sell_option = 1
-        #create_order(stock, buy, "buy", "market", "gtc")
+        create_order(stock, buy, "buy", "market", "gtc")
 
     elif action == 1 and inventory > 0:  # sell
         agent.equity[stock] += sell * close
         agent.inventory[stock] = 0
         # sell_option = 0
-        #create_order(stock, sell, "sell", "market", "gtc")
+        create_order(stock, sell, "sell", "market", "gtc")
         profit_data[stock][1] = agent.equity[stock]
 
-    #print(f"{stock} : {states[action]}")
+    print(f"{stock} : {states[action]}")

@@ -15,6 +15,7 @@ import cv2
 from PIL import Image
 import math
 from variables import *
+import random
 
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D
@@ -81,10 +82,11 @@ def getStateLive(data):
 
     x_train = [blank_matrix]
     x_train = np.array(x_train)
-    x_train = x_train.reshape(x_train.shape[0], 20, 20, 1)
+    x_train = x_train.reshape(x_train.shape[0], TIME_RANGE, PRICE_RANGE, 1)
     x_train = x_train.astype('float32')
 
     return x_train
+
 
 '''
 def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
@@ -136,6 +138,7 @@ def getStateLive(data, sell_option, TIME_RANGE, PRICE_RANGE):
     return [blank_matrix]
 '''
 
+
 def getHistoricalData(key, length_data):
     return 0
 
@@ -148,11 +151,9 @@ def getStockDataLive(key, historical_data, live_data):
     else:
         stock_data = live_data
 
-
     ema3 = stock_data['close'].ewm(span=3, adjust=False).mean()
     ema3 = ema3.fillna(method='bfill')
     ema3 = list(ema3.values)
-
 
     sma3 = stock_data['open'].rolling(3).mean()
     sma3 = sma3.fillna(method='bfill')
@@ -241,11 +242,11 @@ class Agent:
         model.compile(loss='mse', optimizer=Adam(learning_rate=.001), metrics=['accuracy'])
         return 0
         '''
-    def act(self, state):
-        #action = self.model.predict(state)
-        #action = 0
 
-        return 0#np.argmax(action)
+    def act(self, state):
+        # action = self.model.predict(state)
+
+        return 0  # np.argmax(action)
 
     def expReplay(self, batch_size):
         mini_batch = []
@@ -267,63 +268,63 @@ class Agent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-def update_fb(fb_scores, performance, forecast, stock, stocks):
+
+def update_fb(fb_scores, stocks, forecast, stock):
     '''
         get bot peformance, get forecast
         make sure fb scores add up to 1
     '''
+    performances[stock] += forecast
+    normalize_data(stocks)
 
-    fb_stock = performance + forecast
-    fb_scores[stock] = fb_stock
+    print(fb_scores)
 
-    normalize_data(fb_scores, stocks)
 
-    #print(fb_scores)
-
-def getBotPeformance(profit_data, stock):
+def getBotPeformance(profit_data):
     # DATA should be
     # Equity of bot right before it buys | Equity of bot right after it sells
-
-    p_d = profit_data[stock]
-
-    performance = p_d[1]/p_d[0]
-    print(profit_data)
-    return performance
-
-
-def normalize_data(fb_scores, stocks):
-    sum = 0
     for s in stocks:
-        sum += fb_scores[s]
+        p_d = profit_data[s]
+        performance = p_d[1] / p_d[0]
+        performances[s] = performance
+
+
+def normalize_data(stocks):
+    sum_2 = 0
+    temp = []
     for s in stocks:
-        fb_scores[s] = fb_scores[s]/sum
+        sum_2 += performances[s]
+    for s in stocks:
+        score = performances[s]
+        fb[s] = (score / sum_2)
 
 
 def trade_equities(agent, fb_values, total_money, close_values, init_cash):
-    pool_sum = 0
+    print("Trading Equities")
     if init_cash > 0:
         pool = init_cash
     else:
         pool = 0
     # First Pass
     for s in agent.stocks:
-
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
         close = close_values[s]
+
         cash = agent.equity[s]
         live_money = agent_inventory * close
         agent_initial_equity = cash + live_money
         equity = total_money * agent_fb
         change_equity = equity - agent_initial_equity
-        print(f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
+        print(
+            f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
 
+        #if random.randrange(0, 100) > 50:
+        #    close = close - 1
         if change_equity < 0:
-
             if change_equity + cash >= 0:
                 agent.equity[s] -= abs(change_equity)
                 pool += abs(change_equity)
-                profit_data[s][1] = agent.equity[s]
             else:
                 print(s, ' SOLD')
                 change_equity += cash
@@ -335,40 +336,20 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                     sell_2 = agent_inventory
 
                 agent.inventory[s] -= sell_2
-                if sell_2*close > agent.equity[s]:
+                if sell_2 * close > agent.equity[s]:
                     pool += agent.equity[s]
                     agent.equity[s] = 0
                 else:
                     pool += sell_2 * close
-                    agent.equity[s] -= sell_2*close
+                    agent.equity[s] -= sell_2 * close
 
-                #trade.create_order(s, sell_2, "sell", "market", "gtc")
-
-                pool_sum += pool
-
-    # Second Pass
-    for s in agent.stocks:
-        agent_fb = fb_values[s]
-        agent_inventory = agent.inventory[s]
-        close = close_values[s]
-        cash = agent.equity[s]
-        live_money = agent_inventory * close
-        agent_initial_equity = cash + live_money
-        equity = total_money * agent_fb
-
-        change_equity = equity - agent_initial_equity
-
-        if change_equity > 0:
+                trade.create_order(s, sell_2, "sell", "market", "gtc")
+        elif change_equity >= 0:
             agent.equity[s] += change_equity
             pool -= abs(change_equity)
-            pool_sum += pool
 
     # Final Third Pass
-    #print('***', pool)
-    sub = 0
+    # print('***', pool)
     if pool > 0:
         for s in stocks:
             agent.equity[s] += pool / (len(stocks))
-            sub += pool / (len(stocks))
-    pool_sum -= sub
-    print(pool_sum)
