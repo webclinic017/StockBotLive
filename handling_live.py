@@ -318,7 +318,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         change_equity = equity - agent_initial_equity
         print(
             f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
-
+#
         #if random.randrange(0, 100) > 50:
         #    close = close - 1
         if change_equity < 0:
