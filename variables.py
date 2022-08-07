@@ -23,8 +23,8 @@ MAX_DATA_LENGTH = 20
 if MAX_DATA_LENGTH < TIME_RANGE:
     MAX_DATA_LENGTH = TIME_RANGE
 
-stocks = ['AFL', 'DOX', 'HON', 'BCE', 'BRK.B', 'L', 'PEP', 'KO', 'LIT']
-#stocks = ['AMZN', 'SPCE', 'SNDL', 'PLUG','TSLA','CAT','CSCO','CVX','DIS','PLUG','GE','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT']#,'NKE','PFE','PG','TRV','UNH','UTX','V','VZ','WMT','XOM']
+#stocks = ['AFL', 'DOX', 'HON', 'BCE', 'BRK.B', 'L', 'PEP', 'KO', 'LIT']
+stocks = ['AAPL', 'TSLA', 'AMZN', 'NVDA']#,'GE','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT']#,'NKE','PFE','PG','TRV','UNH','UTX','V','VZ','WMT','XOM']
 
 database = Queue()
 

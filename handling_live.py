@@ -310,7 +310,6 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
         close = close_values[s]
-
         cash = agent.equity[s]
         live_money = agent_inventory * close
         agent_initial_equity = cash + live_money
@@ -318,9 +317,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         change_equity = equity - agent_initial_equity
         print(
             f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
-#
-        #if random.randrange(0, 100) > 50:
-        #    close = close - 1
+
         if change_equity < 0:
             if change_equity + cash >= 0:
                 agent.equity[s] -= abs(change_equity)
@@ -335,19 +332,33 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                 elif agent_inventory >= 0:
                     sell_2 = agent_inventory
 
-                agent.inventory[s] -= sell_2
-                if sell_2 * close > agent.equity[s]:
-                    pool += agent.equity[s]
-                    agent.equity[s] = 0
-                else:
-                    pool += sell_2 * close
-                    agent.equity[s] -= sell_2 * close
+                pool += sell_2*close
 
                 trade.create_order(s, sell_2, "sell", "market", "gtc")
-        elif change_equity >= 0:
-            agent.equity[s] += change_equity
-            pool -= abs(change_equity)
+                agent.inventory[s] -= sell_2
 
+
+            print('pool1', pool)
+    #second pass
+    for s in agent.stocks:
+        agent_fb = fb_values[s]
+        agent_inventory = agent.inventory[s]
+        close = close_values[s]
+
+        cash = agent.equity[s]
+        live_money = agent_inventory * close
+        agent_initial_equity = cash + live_money
+        equity = total_money * agent_fb
+        change_equity = equity - agent_initial_equity
+
+        if change_equity >= 0:
+            if pool >= change_equity:
+                agent.equity[s] += change_equity
+                pool -= abs(change_equity)
+            else:
+                agent.equity[s] += pool
+                pool = 0
+    print('pool', pool)
     # Final Third Pass
     # print('***', pool)
     if pool > 0:

@@ -22,8 +22,11 @@ for s in stocks:
     fb.update({s: 1 / (len(stocks))})
     performances.update({s: 1})
 
-trade_equities(agent, fb, TOTAL_EQUITY, close_values, 0)
+#trade_equities(agent, fb, TOTAL_EQUITY, close_values, 0)
 
+for s in stocks:
+    agent.equity[s] = TOTAL_EQUITY * fb[s]
+print(agent.equity)
 for s in stocks:
     # Initial Equity
     profit_data.update({s: [agent.equity[s], agent.equity[s]]})
