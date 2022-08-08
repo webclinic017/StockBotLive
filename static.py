@@ -20,7 +20,7 @@ def getStockData(stock, time_frame_):
     #stock_data = pd.read_csv(f'C:/Users/nirmi/PycharmProjects/StockBotLive/Data/{stock}.txt', parse_dates=True, index_col='Date')
     #stock_data = pdr.get_data_tiingo(stock, api_key='9d4f4dacda5024f00eb8056b19009f32e58b38e5')[-100:]
 
-    stock_data = api.get_bars(symbol=stock, timeframe=time_frame_, limit=1000, start='2022-08-01').df
+    stock_data = api.get_bars(symbol=stock, timeframe=time_frame_, limit=100, start='2022-08-01').df
     close = list(np.array(stock_data['close']))
     open = list(np.array(stock_data['open']))
     high = list(np.array(stock_data['high']))

@@ -78,12 +78,12 @@ def bot(in_q):
                 time_stamps[stock_name] = t
                 print('closing_values ', close_values)
                 if stock_data_live_length >= MAX_DATA_LENGTH:
-                    processed_live_data = getStockDataLive(stock_name, historical_data, live_data)
+                    #processed_live_data = getStockDataLive(stock_name, historical_data, live_data)
 
-                    live_state = getStateLive(data=processed_live_data)
+                    #live_state = getStateLive(data=processed_live_data)
                     # Stock Bot acting for Stock
 
-                    action = agent.act(live_state)
+                    #action = agent.act(live_state)
 
                     trade.bot_order(action=0,
                                     stock=stock_name,
@@ -95,10 +95,10 @@ def bot(in_q):
 
                     forecast = 0
 
-                    if action == 1:
-                        forecast = .1
-                    else:
-                        forecast = -.1
+                    #if action == 1:
+                    #    forecast = .5
+                    #else:
+                    #    forecast = -.5
 
 
                     # Update FB scores

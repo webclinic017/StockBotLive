@@ -244,9 +244,9 @@ class Agent:
         '''
 
     def act(self, state):
-        # action = self.model.predict(state)
+        #action = self.model.predict(state)
 
-        return 0  # np.argmax(action)
+        return 0#np.argmax(action)
 
     def expReplay(self, batch_size):
         mini_batch = []
@@ -305,7 +305,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         pool = init_cash
     else:
         pool = 0
-    # First Pass
+    # First Pass - Add to Pool
     for s in agent.stocks:
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
@@ -317,6 +317,8 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
         change_equity = equity - agent_initial_equity
         print(
             f'Stock : {s} Equity : {agent_initial_equity} Inventory : {agent.inventory[s]} Close : {close_values[s]} Deserved Equity : {equity}')
+
+
 
         if change_equity < 0:
             if change_equity + cash >= 0:
@@ -332,14 +334,13 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                 elif agent_inventory >= 0:
                     sell_2 = agent_inventory
 
-                pool += sell_2*close
+                pool += sell_2 * close
 
                 trade.create_order(s, sell_2, "sell", "market", "gtc")
                 agent.inventory[s] -= sell_2
 
-
             print('pool1', pool)
-    #second pass
+    # Second pass - Remove from Pool
     for s in agent.stocks:
         agent_fb = fb_values[s]
         agent_inventory = agent.inventory[s]
@@ -359,7 +360,7 @@ def trade_equities(agent, fb_values, total_money, close_values, init_cash):
                 agent.equity[s] += pool
                 pool = 0
     print('pool', pool)
-    # Final Third Pass
+    # Final Third Pass - Distribute whats left
     # print('***', pool)
     if pool > 0:
         for s in stocks:
